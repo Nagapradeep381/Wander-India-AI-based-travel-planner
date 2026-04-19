@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import {
+  getPlaceCountByDays,
   getCoordinates,
   fetchPlacesFromOverpass,
   getFallbackPlaces,
@@ -25,32 +26,34 @@ router.post("/travel/plan", async (req, res): Promise<void> => {
   try {
     req.log.info({ destination, days, people }, "Generating travel plan");
 
-    const [destCoords, srcCoords] = await Promise.allSettled([
+    const maxPlaces = getPlaceCountByDays(days);
+
+    const [destCoordsResult] = await Promise.allSettled([
       getCoordinates(destination),
-      getCoordinates(source),
     ]);
 
-    const destLat = destCoords.status === "fulfilled" && destCoords.value ? destCoords.value.lat : null;
-    const destLon = destCoords.status === "fulfilled" && destCoords.value ? destCoords.value.lon : null;
+    const destCoords = destCoordsResult.status === "fulfilled" ? destCoordsResult.value : null;
+    const destLat = destCoords?.lat ?? null;
+    const destLon = destCoords?.lon ?? null;
 
     let places = [];
     if (destLat && destLon) {
-      places = await fetchPlacesFromOverpass(destLat, destLon, destination);
+      places = await fetchPlacesFromOverpass(destLat, destLon, destination, maxPlaces);
     }
 
-    if (places.length < 5) {
-      const fallback = getFallbackPlaces(destination);
+    if (places.length < maxPlaces) {
+      const fallback = getFallbackPlaces(destination, maxPlaces);
       const existing = new Set(places.map((p) => p.name.toLowerCase()));
       for (const fp of fallback) {
         if (!existing.has(fp.name.toLowerCase())) {
           places.push(fp);
-          if (places.length >= 10) break;
         }
+        if (places.length >= maxPlaces) break;
       }
     }
 
     if (places.length === 0) {
-      places = getFallbackPlaces(destination);
+      places = getFallbackPlaces(destination, maxPlaces);
     }
 
     const totalBudget = budgetType === "per_person" ? budget * people : budget;
@@ -59,7 +62,7 @@ router.post("/travel/plan", async (req, res): Promise<void> => {
     const bestTransportCost = transport.find((t) => t.isBestOption)?.cost ?? transport[1].cost;
 
     const hotels = getHotelRecommendations(destination, people, days, totalBudget);
-    const food = getFoodRecommendations(destination, people);
+    const food = getFoodRecommendations(destination);
     const itinerary = generateItinerary(destination, days, places);
     const budgetBreakdown = calculateBudget(budget, budgetType, people, days, bestTransportCost);
 
@@ -100,23 +103,22 @@ router.get("/travel/places", async (req, res): Promise<void> => {
     const coords = await getCoordinates(destination);
     let places = [];
     if (coords) {
-      places = await fetchPlacesFromOverpass(coords.lat, coords.lon, destination);
+      places = await fetchPlacesFromOverpass(coords.lat, coords.lon, destination, limit);
     }
 
-    if (places.length < 5) {
-      const fallback = getFallbackPlaces(destination);
+    if (places.length < Math.min(5, limit)) {
+      const fallback = getFallbackPlaces(destination, limit);
       const existing = new Set(places.map((p) => p.name.toLowerCase()));
       for (const fp of fallback) {
-        if (!existing.has(fp.name.toLowerCase())) {
-          places.push(fp);
-        }
+        if (!existing.has(fp.name.toLowerCase())) places.push(fp);
+        if (places.length >= limit) break;
       }
     }
 
     res.json(places.slice(0, limit));
   } catch (err) {
     req.log.error({ err }, "Failed to fetch places");
-    res.json(getFallbackPlaces(destination).slice(0, limit));
+    res.json(getFallbackPlaces(destination, limit).slice(0, limit));
   }
 });
 

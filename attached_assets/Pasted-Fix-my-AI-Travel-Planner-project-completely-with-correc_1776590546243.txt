@@ -1,0 +1,131 @@
+Fix my AI Travel Planner project completely with correct logic.
+
+========================
+CORE REQUIREMENT
+================
+
+The system must:
+✔ Show correct tourist attractions
+✔ Show famous local foods (NOT restaurants)
+✔ Show working images
+✔ NEVER return empty data
+
+========================
+DYNAMIC PLACES (IMPORTANT)
+==========================
+
+Number of places must depend on number of days:
+
+* 1 day → 3–4 places
+* 2 days → 5–6 places
+* 3 days → 7–9 places
+* 4+ days → 10+ places
+
+DO NOT use fixed number.
+
+========================
+TOURIST ATTRACTIONS FIX
+=======================
+
+Use Overpass API:
+
+tourism=attraction
+tourism=museum
+tourism=viewpoint
+historic=*
+leisure=park
+
+Then:
+
+* Filter only relevant places
+* Sort by importance (if possible)
+
+If API fails:
+→ fallback based on city famous landmarks
+
+NEVER return empty places
+
+========================
+IMAGES (STRICT)
+===============
+
+For each place:
+
+image = "https://source.unsplash.com/400x300/?" + place_name
+
+Fallback:
+"https://source.unsplash.com/400x300/?<destination>-landmark"
+
+Frontend:
+
+* Always show image
+* If broken → show default placeholder
+
+========================
+FOOD (IMPORTANT)
+================
+
+NO restaurants ❌
+
+ONLY famous dishes:
+
+Examples:
+Hyderabad → Biryani, Haleem
+Delhi → Chole Bhature, Paratha
+Chennai → Filter Coffee, Dosa
+
+Logic:
+
+* Use mapping for major cities
+* Else → generate reasonable local dishes
+
+Return:
+food: ["Dish1", "Dish2", "Dish3"]
+
+========================
+ITINERARY (IMPORTANT)
+=====================
+
+Distribute places across days:
+
+Example:
+Day 1 → 3 places
+Day 2 → 3 places
+Day 3 → 3 places
+
+Each day must have:
+✔ Logical grouping
+✔ Nearby places
+
+========================
+OUTPUT FORMAT
+=============
+
+{
+places: [{name, image}],
+food: [],
+transport: [],
+budget: {},
+itinerary: []
+}
+
+========================
+ERROR HANDLING
+==============
+
+* NEVER show empty screen
+* ALWAYS return valid data
+* Use fallback everywhere
+
+========================
+GOAL
+====
+
+Make system:
+✔ Dynamic based on days
+✔ Accurate places
+✔ Correct food
+✔ Working images
+✔ Clean UI
+
+Fix everything and give working code.
