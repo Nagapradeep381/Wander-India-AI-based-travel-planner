@@ -12,10 +12,16 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 
-const FALLBACK_IMG = "https://source.unsplash.com/400x300/?india,tourism,travel";
+const FALLBACK_IMG = "https://picsum.photos/seed/india-travel/400/300";
+
+function picsumSeed(seed: string): string {
+  const slug = seed.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `https://picsum.photos/seed/${slug}/600/400`;
+}
 
 function SafeImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(src || FALLBACK_IMG);
+  useEffect(() => { setImgSrc(src || FALLBACK_IMG); }, [src]);
   return (
     <img
       src={imgSrc}
@@ -50,7 +56,7 @@ export default function Plan() {
       {/* Hero Section */}
       <header className="relative h-[60vh] md:h-[70vh] flex flex-col justify-end pb-12 px-6 md:px-12 overflow-hidden">
         <SafeImage
-          src={`https://source.unsplash.com/1600x900/?${encodeURIComponent(destination + " india city landmark")}`}
+          src={`https://picsum.photos/seed/${destination.toLowerCase().replace(/\s+/g, "-")}-hero/1600/900`}
           alt={destination}
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -113,12 +119,11 @@ export default function Plan() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {places.map((place, idx) => {
-              const keyword = encodeURIComponent(`${place.name.replace(/ /g, "+")} ${destination}`);
               return (
                 <Card key={idx} className="group overflow-hidden border-none shadow-lg hover-elevate transition-all duration-300 bg-card">
                   <div className="aspect-[4/3] overflow-hidden relative">
                     <SafeImage
-                      src={place.image || `https://source.unsplash.com/400x300/?${keyword}`}
+                      src={place.image || picsumSeed(`place-${place.name}-${destination}`)}
                       alt={place.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
@@ -207,7 +212,7 @@ export default function Plan() {
               <Card key={idx} className="overflow-hidden border-none shadow-lg bg-card flex flex-col">
                 <div className="h-48 overflow-hidden relative">
                   <SafeImage
-                    src={hotel.image || `https://source.unsplash.com/400x300/?hotel,${encodeURIComponent(hotel.type)},india`}
+                    src={hotel.image || picsumSeed(`hotel-${hotel.type}-india`)}
                     alt={hotel.name}
                     className="w-full h-full object-cover"
                   />
@@ -257,12 +262,11 @@ export default function Plan() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {food.map((dish, idx) => {
-              const dishKeyword = encodeURIComponent(dish.name.replace(/ /g, "+") + "+food+india");
               return (
                 <Card key={idx} className="overflow-hidden border-none shadow-md bg-card group hover-elevate transition-all duration-300">
                   <div className="h-44 overflow-hidden relative">
                     <SafeImage
-                      src={dish.image || `https://source.unsplash.com/400x300/?${dishKeyword}`}
+                      src={dish.image || picsumSeed(`food-${dish.name}-india`)}
                       alt={dish.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />

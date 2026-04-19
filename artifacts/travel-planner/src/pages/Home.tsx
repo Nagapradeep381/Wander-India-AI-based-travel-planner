@@ -5,7 +5,7 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col">
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center opacity-10"
-        style={{ backgroundImage: 'url("https://source.unsplash.com/1600x900/?india,palace,architecture")' }}
+        style={{ backgroundImage: 'url("https://picsum.photos/seed/india-palace-travel/1600/900")' }}
       />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/50 to-background" />
 
