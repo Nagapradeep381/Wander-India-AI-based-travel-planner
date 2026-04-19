@@ -5,7 +5,10 @@
  * API specification for AI Travel Planner India
  * OpenAPI spec version: 0.1.0
  */
+import type { Activity } from "./activity";
 
-export interface HealthStatus {
-  status: string;
+export interface DayItinerary {
+  day: number;
+  title: string;
+  activities: Activity[];
 }

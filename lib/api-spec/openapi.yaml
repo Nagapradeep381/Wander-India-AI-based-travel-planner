@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API specification for AI Travel Planner India
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: travel
+    description: Travel planning operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,72 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /travel/plan:
+    post:
+      operationId: generateTravelPlan
+      tags: [travel]
+      summary: Generate a travel plan
+      description: Generates a complete travel plan including places, hotels, food, transport, budget and itinerary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TravelPlanRequest"
+      responses:
+        "200":
+          description: Travel plan generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelPlanResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /travel/places:
+    get:
+      operationId: getPlaces
+      tags: [travel]
+      summary: Get places for a destination
+      description: Fetches places to visit at a destination using Overpass API
+      parameters:
+        - name: destination
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Places found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Place"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +102,268 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    TravelPlanRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Source city/location in India
+        destination:
+          type: string
+          description: Destination city/location in India
+        days:
+          type: integer
+          description: Number of days for the trip
+        people:
+          type: integer
+          description: Number of people travelling
+        budget:
+          type: number
+          description: Budget amount in INR
+        budgetType:
+          type: string
+          enum: [total, per_person]
+          description: Whether budget is total or per person
+      required:
+        - source
+        - destination
+        - days
+        - people
+        - budget
+        - budgetType
+
+    Place:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        category:
+          type: string
+        lat:
+          type: ["number", "null"]
+        lon:
+          type: ["number", "null"]
+        entryFee:
+          type: ["number", "null"]
+        timings:
+          type: ["string", "null"]
+        rating:
+          type: ["number", "null"]
+      required:
+        - name
+        - description
+        - image
+        - category
+
+    Hotel:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          description: Budget, Mid-range, or Luxury
+        pricePerNight:
+          type: number
+        image:
+          type: string
+        amenities:
+          type: array
+          items:
+            type: string
+        location:
+          type: string
+        rating:
+          type: ["number", "null"]
+      required:
+        - name
+        - type
+        - pricePerNight
+        - image
+        - amenities
+        - location
+
+    FoodRecommendation:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          description: Restaurant type (Street Food, Dhaba, Restaurant, etc.)
+        cuisine:
+          type: string
+        pricePerPerson:
+          type: number
+        image:
+          type: string
+        mustTry:
+          type: array
+          items:
+            type: string
+        location:
+          type: string
+      required:
+        - name
+        - type
+        - cuisine
+        - pricePerPerson
+        - image
+        - mustTry
+        - location
+
+    TransportOption:
+      type: object
+      properties:
+        mode:
+          type: string
+          description: Bus, Train, Flight, or Car
+        cost:
+          type: number
+          description: Total cost in INR
+        duration:
+          type: string
+        details:
+          type: string
+        isBestOption:
+          type: boolean
+        departureTime:
+          type: ["string", "null"]
+        arrivalTime:
+          type: ["string", "null"]
+      required:
+        - mode
+        - cost
+        - duration
+        - details
+        - isBestOption
+
+    DayItinerary:
+      type: object
+      properties:
+        day:
+          type: integer
+        title:
+          type: string
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
+      required:
+        - day
+        - title
+        - activities
+
+    Activity:
+      type: object
+      properties:
+        time:
+          type: string
+        description:
+          type: string
+        place:
+          type: ["string", "null"]
+        cost:
+          type: ["number", "null"]
+      required:
+        - time
+        - description
+
+    BudgetBreakdown:
+      type: object
+      properties:
+        totalBudget:
+          type: number
+        perPersonBudget:
+          type: number
+        travel:
+          type: number
+        stay:
+          type: number
+        food:
+          type: number
+        misc:
+          type: number
+        travelPercent:
+          type: number
+        stayPercent:
+          type: number
+        foodPercent:
+          type: number
+        miscPercent:
+          type: number
+      required:
+        - totalBudget
+        - perPersonBudget
+        - travel
+        - stay
+        - food
+        - misc
+        - travelPercent
+        - stayPercent
+        - foodPercent
+        - miscPercent
+
+    TravelPlanResponse:
+      type: object
+      properties:
+        destination:
+          type: string
+        source:
+          type: string
+        days:
+          type: integer
+        people:
+          type: integer
+        places:
+          type: array
+          items:
+            $ref: "#/components/schemas/Place"
+        hotels:
+          type: array
+          items:
+            $ref: "#/components/schemas/Hotel"
+        food:
+          type: array
+          items:
+            $ref: "#/components/schemas/FoodRecommendation"
+        transport:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransportOption"
+        itinerary:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayItinerary"
+        budget:
+          $ref: "#/components/schemas/BudgetBreakdown"
+        mapUrl:
+          type: string
+        destinationLat:
+          type: ["number", "null"]
+        destinationLon:
+          type: ["number", "null"]
+      required:
+        - destination
+        - source
+        - days
+        - people
+        - places
+        - hotels
+        - food
+        - transport
+        - itinerary
+        - budget
+        - mapUrl
