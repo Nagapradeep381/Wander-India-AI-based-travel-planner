@@ -11,7 +11,6 @@ export interface Hotel {
   /** Budget, Mid-range, or Luxury */
   type: string;
   pricePerNight: number;
-  image: string;
   amenities: string[];
   location: string;
   /** @nullable */

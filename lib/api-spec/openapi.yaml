@@ -177,8 +177,6 @@ components:
           description: Budget, Mid-range, or Luxury
         pricePerNight:
           type: number
-        image:
-          type: string
         amenities:
           type: array
           items:
@@ -191,7 +189,6 @@ components:
         - name
         - type
         - pricePerNight
-        - image
         - amenities
         - location
 

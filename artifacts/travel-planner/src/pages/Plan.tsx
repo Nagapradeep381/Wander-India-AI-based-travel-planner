@@ -228,41 +228,43 @@ export default function Plan() {
             <h2 className="text-4xl font-serif font-bold text-foreground mb-4">Where to Stay</h2>
             <p className="text-xl text-muted-foreground max-w-2xl">Accommodation options across all budgets in {destination}.</p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {hotels.map((hotel, idx) => (
-              <Card key={idx} className="overflow-hidden border-none shadow-lg bg-card flex flex-col">
-                <div className="h-48 overflow-hidden relative bg-muted">
-                  <SafeImage
-                    src={hotel.image || `https://picsum.photos/seed/hotel-${hotel.type.toLowerCase()}-india/800/600`}
-                    alt={hotel.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <Badge className="absolute top-4 left-4 bg-background/90 text-foreground border-none backdrop-blur font-semibold">
-                    {hotel.type}
-                  </Badge>
-                </div>
-                <CardHeader>
-                  <CardTitle className="font-serif text-xl leading-tight">{hotel.name}</CardTitle>
-                  <CardDescription className="flex items-center gap-1 mt-1">
-                    <MapPin className="w-3 h-3" /> {hotel.location}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col justify-between">
-                  <div className="mb-5 flex flex-wrap gap-1.5">
+              <Card key={idx} className="border-none shadow-md bg-card">
+                <CardContent className="p-6">
+                  {/* Header: type badge + name */}
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="min-w-0">
+                      <Badge className="mb-2 font-semibold" variant="secondary">{hotel.type}</Badge>
+                      <h4 className="font-serif font-bold text-xl text-foreground leading-tight">{hotel.name}</h4>
+                      <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                        <MapPin className="w-3 h-3 shrink-0" /> {hotel.location}
+                      </p>
+                    </div>
+                    {hotel.rating && (
+                      <div className="flex items-center gap-1 text-amber-500 font-medium shrink-0 bg-amber-500/10 px-2.5 py-1.5 rounded-lg">
+                        <Star className="w-4 h-4 fill-current" />
+                        <span className="font-bold">{hotel.rating}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Amenities */}
+                  <div className="flex flex-wrap gap-1.5 mb-5">
                     {hotel.amenities.map((amenity, i) => (
                       <span key={i} className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-full">{amenity}</span>
                     ))}
                   </div>
-                  <div className="flex justify-between items-end border-t border-border pt-4">
+
+                  {/* Price */}
+                  <div className="border-t border-border pt-4 flex items-end justify-between">
                     <div>
                       <span className="text-2xl font-bold font-serif text-foreground">{formatCurrency(hotel.pricePerNight)}</span>
                       <span className="text-muted-foreground text-sm"> / night</span>
                     </div>
-                    {hotel.rating && (
-                      <div className="flex items-center gap-1 text-amber-500 font-medium">
-                        <Star className="w-4 h-4 fill-current" /> {hotel.rating}
-                      </div>
-                    )}
+                    <span className="text-xs text-muted-foreground">
+                      {formatCurrency(hotel.pricePerNight * days)} total
+                    </span>
                   </div>
                 </CardContent>
               </Card>

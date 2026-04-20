@@ -472,9 +472,9 @@ export function getHotelRecommendations(destination: string, people: number, day
   const perPersonPerNight = (budget * 0.35) / (people * days);
   const dest = destination.split(",")[0].trim();
   return [
-    { name: `Budget Stay ${dest}`, type: "Budget", pricePerNight: Math.max(500, Math.round(perPersonPerNight * people * 0.35)), image: pimg("budget-hotel-india-clean"), amenities: ["Free WiFi", "AC Room", "24/7 Reception", "Hot Water", "TV"], location: `Near ${dest} Bus Stand / Railway Station`, rating: 3.5 },
-    { name: `${dest} Comfort Suites`, type: "Mid-range", pricePerNight: Math.max(1500, Math.round(perPersonPerNight * people * 0.65)), image: pimg("comfortable-hotel-india-3star"), amenities: ["Free WiFi", "Swimming Pool", "Restaurant", "AC", "Room Service", "Gym", "Parking"], location: `City Centre, ${dest}`, rating: 4.1 },
-    { name: `The Grand ${dest}`, type: "Luxury", pricePerNight: Math.max(4000, Math.round(perPersonPerNight * people * 1.4)), image: pimg("luxury-hotel-five-star-india-resort"), amenities: ["Free WiFi", "Spa & Wellness", "Multiple Restaurants", "Rooftop Pool", "Concierge", "Airport Transfer", "Butler", "Bar & Lounge"], location: `Prime Location, ${dest}`, rating: 4.7 },
+    { name: `Budget Stay ${dest}`, type: "Budget", pricePerNight: Math.max(500, Math.round(perPersonPerNight * people * 0.35)), amenities: ["Free WiFi", "AC Room", "24/7 Reception", "Hot Water", "TV"], location: `Near ${dest} Bus Stand / Railway Station`, rating: 3.5 },
+    { name: `${dest} Comfort Suites`, type: "Mid-range", pricePerNight: Math.max(1500, Math.round(perPersonPerNight * people * 0.65)), amenities: ["Free WiFi", "Swimming Pool", "Restaurant", "AC", "Room Service", "Gym", "Parking"], location: `City Centre, ${dest}`, rating: 4.1 },
+    { name: `The Grand ${dest}`, type: "Luxury", pricePerNight: Math.max(4000, Math.round(perPersonPerNight * people * 1.4)), amenities: ["Free WiFi", "Spa & Wellness", "Multiple Restaurants", "Rooftop Pool", "Concierge", "Airport Transfer", "Butler", "Bar & Lounge"], location: `Prime Location, ${dest}`, rating: 4.7 },
   ];
 }
 
