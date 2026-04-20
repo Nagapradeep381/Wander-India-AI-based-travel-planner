@@ -15,6 +15,54 @@ function fimg(keywords: string, lock: number): string {
   return `https://loremflickr.com/400/300/${kw}?lock=${lock}`;
 }
 
+const CITY_SUFFIX_RE = /\s+(jaipur|mumbai|delhi|goa|bangalore|bengaluru|hyderabad|chennai|kolkata|agra|varanasi|udaipur|mysore|pune|kochi|cochin|amritsar|lucknow|jaisalmer|jodhpur|shimla|manali|ooty|darjeeling|rishikesh|haridwar|mathura|vrindavan|tirupati|madurai|trivandrum|coimbatore|visakhapatnam|vizag|surat|ahmedabad|bhopal|indore|nagpur|patna|ranchi|bhubaneswar|guwahati|shillong|gangtok|leh|srinagar|jammu|aurangabad|nashik|rajkot|vadodara|meerut|allahabad|prayagraj)$/i;
+
+async function fetchWikiSummary(title: string): Promise<{ originalimage?: { source: string }; thumbnail?: { source: string }; type?: string } | null> {
+  try {
+    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/\s+/g, "_"))}`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": "TravelPlannerIndia/1.0 (travel-planner@replit.app)" },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { originalimage?: { source: string }; thumbnail?: { source: string }; type?: string };
+    if (data.type === "disambiguation") return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function extractImageFromSummary(data: { originalimage?: { source: string }; thumbnail?: { source: string } } | null): string | null {
+  if (!data) return null;
+  if (data.originalimage?.source) return data.originalimage.source;
+  if (data.thumbnail?.source) return data.thumbnail.source.replace(/\/\d+px-/, "/800px-");
+  return null;
+}
+
+export async function getWikipediaImage(placeName: string): Promise<string | null> {
+  try {
+    const cityMatch = placeName.match(CITY_SUFFIX_RE);
+    const cityName = cityMatch ? cityMatch[1] : null;
+    const stripped = placeName.replace(CITY_SUFFIX_RE, "").trim();
+
+    const candidates: string[] = [placeName];
+    if (cityName && stripped !== placeName) {
+      candidates.push(`${stripped}, ${cityName.charAt(0).toUpperCase()}${cityName.slice(1)}`);
+      candidates.push(stripped);
+    }
+
+    for (const candidate of candidates) {
+      const data = await fetchWikiSummary(candidate);
+      const img = extractImageFromSummary(data);
+      if (img) return img;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function getPlaceCountByDays(days: number): number {
   if (days <= 1) return 4;
   if (days === 2) return 6;

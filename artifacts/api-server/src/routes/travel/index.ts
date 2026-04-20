@@ -9,6 +9,7 @@ import {
   getFoodRecommendations,
   generateItinerary,
   calculateBudget,
+  getWikipediaImage,
 } from "./helpers";
 import { GenerateTravelPlanBody } from "@workspace/api-zod";
 
@@ -55,6 +56,15 @@ router.post("/travel/plan", async (req, res): Promise<void> => {
     if (places.length === 0) {
       places = getFallbackPlaces(destination, maxPlaces);
     }
+
+    const wikiResults = await Promise.allSettled(
+      places.map((p) => getWikipediaImage(p.name))
+    );
+    places = places.map((p, i) => {
+      const result = wikiResults[i];
+      const wikiImg = result.status === "fulfilled" ? result.value : null;
+      return wikiImg ? { ...p, image: wikiImg } : p;
+    });
 
     const totalBudget = budgetType === "per_person" ? budget * people : budget;
 

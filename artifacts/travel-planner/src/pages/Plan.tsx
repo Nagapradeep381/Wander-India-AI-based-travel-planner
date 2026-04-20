@@ -12,34 +12,20 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 
-function buildPlaceImageUrls(name: string, city: string, backendImage: string | null): string[] {
-  const namePart = encodeURIComponent(`${name} ${city} landmark`);
-  const lf = `https://loremflickr.com/800/600/${encodeURIComponent(name)},${encodeURIComponent(city)}`;
-  const picSeed = `https://picsum.photos/seed/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${city.toLowerCase().replace(/[^a-z0-9]+/g, "-")}/800/600`;
-  const picsumFallback = "https://picsum.photos/seed/india-landmark/800/600";
-  return [
-    lf,
-    backendImage || picSeed,
-    picsumFallback,
-  ];
-}
+const PLACE_FALLBACK = "https://picsum.photos/seed/india-landmark/800/600";
 
-function PlaceImage({ name, city, backendImage, className }: {
-  name: string; city: string; backendImage: string | null; className?: string;
+function PlaceImage({ src, name, className }: {
+  src: string | null; name: string; className?: string;
 }) {
-  const urls = buildPlaceImageUrls(name, city, backendImage);
-  const [idx, setIdx] = useState(0);
-  useEffect(() => { setIdx(0); }, [name, city]);
-
+  const [useFallback, setUseFallback] = useState(false);
+  useEffect(() => { setUseFallback(false); }, [src]);
   return (
     <img
-      src={urls[idx]}
+      src={useFallback || !src ? PLACE_FALLBACK : src}
       alt={name}
       className={className}
       loading="lazy"
-      onError={() => {
-        if (idx < urls.length - 1) setIdx(idx + 1);
-      }}
+      onError={() => setUseFallback(true)}
     />
   );
 }
@@ -144,9 +130,8 @@ export default function Plan() {
               <Card key={idx} className="group overflow-hidden border-none shadow-lg hover-elevate transition-all duration-300 bg-card">
                 <div className="aspect-[4/3] overflow-hidden relative bg-muted">
                   <PlaceImage
+                    src={place.image}
                     name={place.name}
-                    city={destination}
-                    backendImage={place.image}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <Badge className="absolute top-4 right-4 bg-background/80 backdrop-blur text-foreground border-none">
