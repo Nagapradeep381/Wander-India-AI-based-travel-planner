@@ -1,0 +1,20 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "9VJ8j0ytvjhJR9k7AQiZz"
+uri = "file://downloads/frontend.zip"
+type = "unspecified"
+title = "Frontend Files (React + Vite)"
+
+[[outputs]]
+id = "x6rx2Yin_RkNiLAz1ocqM"
+uri = "file://downloads/backend.zip"
+type = "unspecified"
+title = "Backend Files (Express API Server)"
+
+[[outputs]]
+id = "LeMQm--ap3qdr_LbGnH_R"
+uri = "file://downloads/shared-api-contract.zip"
+type = "unspecified"
+title = "Shared API Contract (OpenAPI + Generated Types)"
